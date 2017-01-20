@@ -503,7 +503,7 @@ class ventas_imprimir extends fs_controller
              */
             $pdf_doc->pdf->ez['leftMargin'] = 295;
             $pdf_doc->set_y(820);
-            $pdf_doc->pdf->ezText("<b>". strtoupper(FS_ALBARAN).": " . $this->albaran->codigo .
+            $pdf_doc->pdf->ezText("<b>". mb_strtoupper(FS_ALBARAN,'utf-8').": " . $this->albaran->codigo .
                                   "</b> ... " , 12, array('justification' => 'left'));
             $pdf_doc->set_y(820);
             $pdf_doc->pdf->ezText($this->albaran->fecha, 10, array('justification' => 'right'));

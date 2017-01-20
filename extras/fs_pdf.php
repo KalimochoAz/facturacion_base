@@ -173,8 +173,10 @@ class fs_pdf
          }
 
          $this->pdf->ez['rightMargin'] = 40;
+         $this->pdf->ez['leftMargin'] = 35;
          $this->set_y(825);
-         $this->pdf->ezText("<b>".$empresa->nombre."</b>", 12, array('justification' => 'left'));
+         $this->pdf->ezText("<b>".$empresa->nombre."</b>", 11, array('justification' => 'left'));
+         $this->pdf->ez['leftMargin'] = 40;
          $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'left'));
 
          $direccion = $empresa->direccion . "\n";
