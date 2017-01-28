@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -142,7 +142,8 @@ class contabilidad_asiento extends fs_controller
             $this->asiento->editable = TRUE;
             
             $regiva0 = new regularizacion_iva();
-            if( $regiva0->get_fecha_inside($this->asiento->fecha) )
+            $excluir = array($ejercicio->idasientoapertura, $ejercicio->idasientocierre, $ejercicio->idasientopyg);
+            if( $regiva0->get_fecha_inside($this->asiento->fecha) AND !in_array($this->asiento->idasiento, $excluir) )
             {
                $this->asiento->editable = FALSE;
                $this->new_error_msg('El asiento está dentro de una regularización de '
@@ -173,7 +174,8 @@ class contabilidad_asiento extends fs_controller
          if( $ejercicio->abierto() )
          {
             $regiva0 = new regularizacion_iva();
-            if( $regiva0->get_fecha_inside($this->asiento->fecha) )
+            $excluir = array($ejercicio->idasientoapertura, $ejercicio->idasientocierre, $ejercicio->idasientopyg);
+            if( $regiva0->get_fecha_inside($this->asiento->fecha) AND !in_array($this->asiento->idasiento, $excluir) )
             {
                $this->new_error_msg('El asiento está dentro de una regularización de '
                        .FS_IVA.'. No se puede modificar.');
@@ -268,6 +270,7 @@ class contabilidad_asiento extends fs_controller
          }
          
          /// añadimos y modificamos
+         $subcuentas_recalcular = array();
          $npartida = new partida();
          for($i = 1; $i <= $numlineas; $i++)
          {
@@ -281,7 +284,15 @@ class contabilidad_asiento extends fs_controller
                else
                {
                   $partida = $npartida->get( $_POST['idpartida_'.$i] );
-                  if( !$partida )
+                  if($partida)
+                  {
+                     if($partida->codsubcuenta != $_POST['codsubcuenta_'.$i])
+                     {
+                        /// si hemos cambiado de subcuenta, hay que recalcular el saldo de la anterior
+                        $subcuentas_recalcular[] = $partida->get_subcuenta();
+                     }
+                  }
+                  else
                   {
                      $this->new_error_msg('Partida de '.$_POST['codsubcuenta_'.$i].' no encontrada.');
                      $continuar = FALSE;
@@ -347,6 +358,12 @@ class contabilidad_asiento extends fs_controller
                else
                   break;
             }
+         }
+         
+         /// recalculamos el saldo de las subcuentas cambiadas
+         foreach($subcuentas_recalcular as $scr)
+         {
+            $scr->save();
          }
          
          if($continuar)

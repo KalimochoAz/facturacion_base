@@ -150,8 +150,18 @@ class fs_pdf
    {
       if( function_exists('imagecreatefromstring') )
       {
+         // Relleno azulito para cabecera de la tabla
+         $this->pdf->setColor(0.4, 0.50, 0.8);
+         $this->pdf->filledrectangle(250,715,308,15);
+         $this->pdf->filledrectangle(28,700,222,30);
+         $this->pdf->setColor(0, 0, 0);
+         
          // Rectangulo correspondiente al nombre de la Empresa
-         $this->pdf->rectangle(30,760,250,65);
+         $this->pdf->rectangle(28,650,530,178);
+         $this->pdf->line(28,730,558,730);
+         $this->pdf->line(250,730,250,650);
+         $this->pdf->line(28,700,250,700);
+         $this->pdf->line(250,715,558,715);
 
          /// ¿Añadimos el logo?
          if($this->logo)
@@ -164,20 +174,20 @@ class fs_pdf
             $tamañox = $ancho*$factor;
             if( substr( strtolower($this->logo), -4 ) == '.png' )
             {
-               $this->pdf->addPngFromFile($this->logo, 35, 670, $tamañox, $tamañoy);
+               $this->pdf->addPngFromFile($this->logo, 35, 735, $tamañox, $tamañoy);
             }
             else
             {
-               $this->pdf->addJpegFromFile($this->logo, 35, 670, $tamañox, $tamañoy);
+               $this->pdf->addJpegFromFile($this->logo, 35, 735, $tamañox, $tamañoy);
             }
          }
 
          $this->pdf->ez['rightMargin'] = 40;
-         $this->pdf->ez['leftMargin'] = 35;
-         $this->set_y(825);
-         $this->pdf->ezText("<b>".$empresa->nombre."</b>", 11, array('justification' => 'left'));
-         $this->pdf->ez['leftMargin'] = 40;
-         $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'left'));
+         $this->pdf->ez['leftMargin'] = 150;
+         $this->set_y(815);
+         $this->pdf->ezText("<b>".$empresa->nombre."</b>", 12, array('justification' => 'center'));
+         $this->pdf->ez['leftMargin'] = 150;
+         $this->pdf->ezText(FS_CIFNIF.": ".$empresa->cifnif, 8, array('justification' => 'center'));
 
          $direccion = $empresa->direccion . "\n";
          if($empresa->apartado)
@@ -205,7 +215,7 @@ class fs_pdf
             $direccion .= "\nTeléfono: " . $empresa->telefono;
          }
 
-         $this->pdf->ezText($this->fix_html($direccion)."\n", 9, array('justification' => 'left'));
+         $this->pdf->ezText($this->fix_html($direccion)."\n", 9, array('justification' => 'center'));
          $this->set_y(750);
       }
       else
@@ -213,6 +223,8 @@ class fs_pdf
          die('ERROR: no se encuentra la función imagecreatefromstring(). '
                  . 'Y por tanto no se puede usar el logotipo en los documentos.');
       }
+      
+      $this->pdf->ez['leftMargin'] = 40;
    }
    
    private function calcular_tamanyo_logo()
@@ -333,5 +345,49 @@ class fs_pdf
       $newt = str_replace('&quot;', '"', $newt);
       $newt = str_replace('&#39;', "'", $newt);
       return $newt;
+   }
+   
+   public function get_lineas_iva($lineas)
+   {
+      $retorno = array();
+      $lineasiva = array();
+      
+      foreach($lineas as $lin)
+      {
+         if( isset($lineasiva[$lin->codimpuesto]) )
+         {
+            if($lin->recargo > $lineasiva[$lin->codimpuesto]['recargo'])
+            {
+               $lineasiva[$lin->codimpuesto]['recargo'] = $lin->recargo;
+            }
+            
+            $lineasiva[$lin->codimpuesto]['neto'] += $lin->pvptotal;
+            $lineasiva[$lin->codimpuesto]['totaliva'] += ($lin->pvptotal*$lin->iva)/100;
+            $lineasiva[$lin->codimpuesto]['totalrecargo'] += ($lin->pvptotal*$lin->recargo)/100;
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
+                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+         }
+         else
+         {
+            $lineasiva[$lin->codimpuesto] = array(
+                'codimpuesto' => $lin->codimpuesto,
+                'iva' => $lin->iva,
+                'recargo' => $lin->recargo,
+                'neto' => $lin->pvptotal,
+                'totaliva' => ($lin->pvptotal*$lin->iva)/100,
+                'totalrecargo' => ($lin->pvptotal*$lin->recargo)/100,
+                'totallinea' => 0
+            );
+            $lineasiva[$lin->codimpuesto]['totallinea'] = $lineasiva[$lin->codimpuesto]['neto']
+                    + $lineasiva[$lin->codimpuesto]['totaliva'] + $lineasiva[$lin->codimpuesto]['totalrecargo'];
+         }
+      }
+      
+      foreach($lineasiva as $lin)
+      {
+         $retorno[] = $lin;
+      }
+      
+      return $retorno;
    }
 }

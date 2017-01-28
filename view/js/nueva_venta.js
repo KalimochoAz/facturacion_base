@@ -1,6 +1,6 @@
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2014-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,7 +21,7 @@ var fs_nf0 = 2;
 var fs_nf0_art = 2;
 var all_direcciones = [];
 var all_impuestos = [];
-var default_impuesto = 'IVA21';
+var default_impuesto = '';
 var all_series = [];
 var cliente = false;
 var nueva_venta_url = '';
@@ -398,7 +398,7 @@ function aux_all_impuestos(num,codimpuesto)
    {
       for(var i=0; i<all_impuestos.length; i++)
       {
-         if(all_impuestos[i].codimpuesto == codimpuesto)
+         if(all_impuestos[i].codimpuesto == codimpuesto || codimpuesto == '')
          {
             iva = all_impuestos[i].iva;
             if(cliente.recargo)
