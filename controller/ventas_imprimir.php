@@ -667,6 +667,10 @@ class ventas_imprimir extends fs_controller
       }
       else
       {
+         // Relleno azulito para cabecera de la tabla
+         $pdf_doc->pdf->setColor(0.4, 0.50, 0.8);
+         $pdf_doc->pdf->filledrectangle(33,62,520,18);
+         $pdf_doc->pdf->setColor(0, 0, 0);
          /*
           * Rellenamos la última tabla de la página:
           * 
