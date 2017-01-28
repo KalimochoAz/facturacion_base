@@ -251,12 +251,12 @@
    </columna>
    <columna>
       <nombre>persona_contacto</nombre>
-      <tipo>character varying(45)</tipo>
+      <tipo>character varying(100)</tipo>
       <nulo>YES</nulo>
    </columna>
    <columna>
       <nombre>actuacion_en</nombre>
-      <tipo>character varying(45)</tipo>
+      <tipo>character varying(100)</tipo>
       <nulo>YES</nulo>
    </columna>
    <restriccion>
