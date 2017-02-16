@@ -40,6 +40,7 @@ class informe_facturas extends fs_controller
    public $proveedor;
    public $serie;
    public $stats;
+   public $forma_pago;
    
    public function __construct()
    {
@@ -56,6 +57,7 @@ class informe_facturas extends fs_controller
       $this->pais = new pais();
       $this->serie = new serie();
       $this->stats = array();
+      $this->forma_pago = new forma_pago();
       
       $this->mostrar = 'general';
       if( isset($_GET['mostrar']) )
@@ -213,7 +215,13 @@ class informe_facturas extends fs_controller
          $estado = $_POST['estado'];
       }
       
-      $facturas = $this->factura_cli->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codcliente, $estado);
+      $forma_pago = FALSE;
+      if($_POST['codpago'])
+      {
+         $forma_pago = $_POST['codpago'];
+      }
+      
+      $facturas = $this->factura_cli->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codcliente, $estado, $forma_pago);
       if($facturas)
       {
          foreach($facturas as $fac)
@@ -319,7 +327,12 @@ class informe_facturas extends fs_controller
          $estado = $_POST['estado'];
       }
       
-      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado);
+      if($_POST['codpago'])
+      {
+         $forma_pago = $_POST['codpago'];
+      }
+      
+      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado, $forma_pago);
       if($facturas)
       {
          foreach($facturas as $fac)
@@ -426,8 +439,13 @@ class informe_facturas extends fs_controller
       {
          $estado = $_POST['estado'];
       }
+      $forma_pago = FALSE;
+      if($_POST['codpago'])
+      {
+         $forma_pago = $_POST['codpago'];
+      }
       
-      $facturas = $this->factura_cli->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codcliente, $estado);
+      $facturas = $this->factura_cli->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codcliente, $estado, $forma_pago);
       if($facturas)
       {
          $total_lineas = count($facturas);
@@ -485,6 +503,14 @@ class informe_facturas extends fs_controller
                {
                   $pdf_doc->pdf->ezText("Estado: Sin Pagar");
                }
+            }
+            if ($forma_pago)
+            {
+               $formapago = '';
+               $pago = new forma_pago();
+               $pago = $pago->get($forma_pago);
+               $formapago = $pago->descripcion;
+               $pdf_doc->pdf->ezText("Forma de pago: ".$formapago);
             }
             
             $pdf_doc->pdf->ezText("\n", 8);
@@ -687,7 +713,13 @@ class informe_facturas extends fs_controller
          $estado = $_POST['estado'];
       }
       
-      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado);
+      $forma_pago = FALSE;
+      if($_POST['codpago'])
+      {
+         $forma_pago = $_POST['codpago'];
+      }
+      
+      $facturas = $this->factura_pro->all_desde($_POST['desde'], $_POST['hasta'], $codserie, $codagente, $codproveedor, $estado, $forma_pago);
       if($facturas)
       {
          $total_lineas = count($facturas);
@@ -745,6 +777,14 @@ class informe_facturas extends fs_controller
                {
                   $pdf_doc->pdf->ezText("Estado: Sin Pagar");
                }
+            }
+            if ($forma_pago)
+            {
+               $formapago = '';
+               $pago = new forma_pago();
+               $pago = $pago->get($forma_pago);
+               $formapago = $pago->descripcion;
+               $pdf_doc->pdf->ezText("Forma de pago: ".$formapago);
             }
             
             $pdf_doc->pdf->ezText("\n", 8);

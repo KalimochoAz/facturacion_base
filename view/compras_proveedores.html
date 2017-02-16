@@ -95,7 +95,18 @@
                         <option value="noacreedores"{if="$fsc->tipo=='noacreedores'"} selected=""{/if}>No acreedores</option>
                      </select>
                   </div>
-                  <div class="col-sm-6"></div>
+                  <div class="col-sm-6">
+                     <div class="checkbox">
+                        <label>
+                           {if="$fsc->debaja"}
+                           <input type="checkbox" name="debaja" value="TRUE" checked="" onchange="this.form.submit()"/>
+                           {else}
+                           <input type="checkbox" name="debaja" value="TRUE" onchange="this.form.submit()"/>
+                           {/if}
+                           de baja
+                        </label>
+                     </div>
+                  </div>
                   <div class="col-sm-2">
                      <div class="input-group">
                         <div class="input-group-addon">
@@ -124,7 +135,7 @@
                   </tr>
                </thead>
                {loop="$fsc->resultados"}
-               <tr class="clickableRow" href="{$value->url()}">
+               <tr class='clickableRow{if="$value->debaja"} danger{/if}' href='{$value->url()}'>
                   <td>
                      <a href="{$value->url()}">{$value->codproveedor}</a> {$value->nombre}
                      {if="$value->nombre!=$value->razonsocial"}
@@ -132,6 +143,9 @@
                      {/if}
                      {if="$value->acreedor"}
                      &nbsp; <span class="glyphicon glyphicon-briefcase" title="Es un acreedor"></span>
+                     {/if}
+                     {if="$value->debaja"}
+                     &nbsp; <span class="label label-danger hidden-sm" title="proveedor dado de baja">Baja</span>
                      {/if}
                   </td>
                   <td>{$value->cifnif}</td>

@@ -1,7 +1,7 @@
 <?php
 /*
  * This file is part of FacturaScripts
- * Copyright (C) 2013-2016  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2013-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -108,6 +108,18 @@ class proveedor extends \fs_model
     * @var type 
     */
    public $personafisica;
+
+   /**
+    * TRUE -> ya no queremos nada con el proveedor.
+    * @var type 
+    */
+   public $debaja;
+   
+   /**
+    * Fecha en la que se dió de baja al proveedor.
+    * @var type 
+    */
+   public $fechabaja;
    
    private static $regimenes_iva;
    
@@ -142,6 +154,9 @@ class proveedor extends \fs_model
          $this->regimeniva = $p['regimeniva'];
          $this->acreedor = $this->str2bool($p['acreedor']);
          $this->personafisica = $this->str2bool($p['personafisica']);
+
+         $this->debaja = $this->str2bool($p['debaja']);
+         $this->fechabaja = date('d-m-Y');
       }
       else
       {
@@ -170,6 +185,9 @@ class proveedor extends \fs_model
          $this->regimeniva = 'General';
          $this->acreedor = FALSE;
          $this->personafisica = TRUE;
+
+         $this->debaja = FALSE;
+         $this->fechabaja = NULL;
       }
    }
    
@@ -529,13 +547,15 @@ class proveedor extends \fs_model
                     ", regimeniva = ".$this->var2str($this->regimeniva).
                     ", acreedor = ".$this->var2str($this->acreedor).
                     ", personafisica = ".$this->var2str($this->personafisica).
+                    ", debaja = ".$this->var2str($this->debaja).
+                    ", fechabaja = ".$this->var2str($this->fechabaja).
                     " WHERE codproveedor = ".$this->var2str($this->codproveedor).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codproveedor,nombre,razonsocial,tipoidfiscal,cifnif,
                telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,observaciones,
-               regimeniva,acreedor,personafisica) VALUES (".$this->var2str($this->codproveedor).
+               regimeniva,acreedor,personafisica,debaja,fechabaja) VALUES (".$this->var2str($this->codproveedor).
                     ",".$this->var2str($this->nombre).
                     ",".$this->var2str($this->razonsocial).
                     ",".$this->var2str($this->tipoidfiscal).
@@ -551,7 +571,9 @@ class proveedor extends \fs_model
                     ",".$this->var2str($this->observaciones).
                     ",".$this->var2str($this->regimeniva).
                     ",".$this->var2str($this->acreedor).
-                    ",".$this->var2str($this->personafisica).");";
+                    ",".$this->var2str($this->personafisica).
+                    ",".$this->var2str($this->debaja).
+                    ",".$this->var2str($this->fechabaja).");";
          }
          
          return $this->db->exec($sql);
