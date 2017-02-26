@@ -239,7 +239,7 @@ class factura_cliente extends \fs_model
    public $idimprenta;
    
    /**
-    * Número de documentos asjuntos
+    * Número de documentos adjuntos.
     * @var integer 
     */
    public $numdocs;
@@ -1323,6 +1323,7 @@ class factura_cliente extends \fs_model
             }
          }
          
+         $this->new_message(ucfirst(FS_FACTURA)." de venta ".$this->codigo." eliminada correctamente.");
          return TRUE;
       }
       else

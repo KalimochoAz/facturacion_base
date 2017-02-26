@@ -195,7 +195,7 @@ class factura_proveedor extends \fs_model
    public $anulada;
    
    /**
-    * Número de documentos asjuntos
+    * Número de documentos adjuntos.
     * @var integer 
     */
    public $numdocs;
@@ -1068,6 +1068,7 @@ class factura_proveedor extends \fs_model
             }
          }
          
+         $this->new_message(ucfirst(FS_FACTURA)." de compra ".$this->codigo." eliminada correctamente.");
          return TRUE;
       }
       else
