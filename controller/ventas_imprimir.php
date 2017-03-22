@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -567,8 +567,13 @@ class ventas_imprimir extends fs_controller
       {
          $direccion .= ' - CP: '.$this->documento->codpostal;
       }
-      $direccion .= ' - '.$this->documento->ciudad.' ('.$this->documento->provincia.')';
 
+      $direccion .= ' - '.$this->documento->ciudad;
+      if($this->documento->provincia)
+      {
+         $direccion .= ' ('.$this->documento->provincia.')';
+      }
+        
       $pdf_doc->pdf->ezText($pdf_doc->fix_html($direccion),
                             8, array('justification' => 'left'));
 

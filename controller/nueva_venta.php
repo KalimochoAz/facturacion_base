@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of FacturaScripts
+ * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
  * Copyright (C) 2014-2015  Francesc Pineda Segarra  shawe.ewahs@gmail.com
  *
@@ -551,7 +551,9 @@ class nueva_venta extends fs_controller
                 'dto' => floatval($_POST['dto']),
                 'codimpuesto' => $_POST['codimpuesto'],
                 'cantidad' => floatval($_POST['cantidad']),
-                'txt' => $com->nombreatributo.' - '.$com->valor
+                'txt' => $com->nombreatributo.' - '.$com->valor,
+                'codigo' => $com->codigo,
+                'stockfis' => $com->stockfis,
             );
          }
       }
@@ -734,6 +736,11 @@ class nueva_venta extends fs_controller
                      {
                         $trazabilidad = TRUE;
                      }
+                     
+                     if($_POST['codcombinacion_'.$i])
+                     {
+                        $linea->codcombinacion = $_POST['codcombinacion_'.$i];
+                     }
                   }
                   
                   if( $linea->save() )
@@ -748,7 +755,7 @@ class nueva_venta extends fs_controller
                         else if( isset($_POST['stock']) )
                         {
                            /// descontamos del stock
-                           $articulo->sum_stock($albaran->codalmacen, 0 - $linea->cantidad);
+                           $articulo->sum_stock($albaran->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
                         }
                      }
                      
@@ -980,6 +987,11 @@ class nueva_venta extends fs_controller
                      {
                         $trazabilidad = TRUE;
                      }
+                     
+                     if($_POST['codcombinacion_'.$i])
+                     {
+                        $linea->codcombinacion = $_POST['codcombinacion_'.$i];
+                     }
                   }
                   
                   if( $linea->save() )
@@ -994,7 +1006,7 @@ class nueva_venta extends fs_controller
                         else if( isset($_POST['stock']) )
                         {
                            /// descontamos del stock
-                           $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad);
+                           $articulo->sum_stock($factura->codalmacen, 0 - $linea->cantidad, FALSE, $linea->codcombinacion);
                         }
                      }
                      
@@ -1245,6 +1257,10 @@ class nueva_venta extends fs_controller
                   if($articulo)
                   {
                      $linea->referencia = $articulo->referencia;
+                     if($_POST['codcombinacion_'.$i])
+                     {
+                        $linea->codcombinacion = $_POST['codcombinacion_'.$i];
+                     }
                   }
                   
                   if( $linea->save() )
@@ -1456,6 +1472,10 @@ class nueva_venta extends fs_controller
                   if($articulo)
                   {
                      $linea->referencia = $articulo->referencia;
+                     if($_POST['codcombinacion_'.$i])
+                     {
+                        $linea->codcombinacion = $_POST['codcombinacion_'.$i];
+                     }
                   }
                   
                   if( $linea->save() )
