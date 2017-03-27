@@ -147,7 +147,13 @@ class cliente extends \fs_model
     * @var type 
     */
    public $diaspago;
-
+   
+   /**
+    * Proveedor asociado equivalente
+    * @var type
+    */
+   public $codproveedor;
+   
    private static $regimenes_iva;
 
    public function __construct($c = FALSE)
@@ -194,6 +200,7 @@ class cliente extends \fs_model
          $this->recargo = $this->str2bool($c['recargo']);
          $this->personafisica = $this->str2bool($c['personafisica']);
          $this->diaspago = $c['diaspago'];
+         $this->codproveedor = $c['codproveedor'];
       }
       else
       {
@@ -229,6 +236,7 @@ class cliente extends \fs_model
          $this->recargo = FALSE;
          $this->personafisica = TRUE;
          $this->diaspago = NULL;
+         $this->codproveedor = NULL;
       }
    }
    
@@ -535,6 +543,7 @@ class cliente extends \fs_model
       $this->razonsocial = $this->no_html($this->razonsocial);
       $this->cifnif = $this->no_html($this->cifnif);
       $this->observaciones = $this->no_html($this->observaciones);
+      $this->codproveedor = trim($this->codproveedor);
       
       if($this->debaja)
       {
@@ -612,13 +621,14 @@ class cliente extends \fs_model
                     .", personafisica = ".$this->var2str($this->personafisica)
                     .", numeroproveedor = ".$this->var2str($this->numeroproveedor)
                     .", diaspago = ".$this->var2str($this->diaspago)
+                    .", codproveedor = ".$this->var2str($this->codproveedor)
                     ."  WHERE codcliente = ".$this->var2str($this->codcliente).";";
          }
          else
          {
             $sql = "INSERT INTO ".$this->table_name." (codcliente,nombre,razonsocial,tipoidfiscal,
                cifnif,telefono1,telefono2,fax,email,web,codserie,coddivisa,codpago,codagente,codgrupo,
-               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,numeroproveedor,diaspago,personafisica) VALUES
+               debaja,fechabaja,fechaalta,observaciones,regimeniva,recargo,numeroproveedor,personafisica,diaspago,codproveedor) VALUES
                       (".$this->var2str($this->codcliente)
                     .",".$this->var2str($this->nombre)
                     .",".$this->var2str($this->razonsocial)
@@ -641,8 +651,9 @@ class cliente extends \fs_model
                     .",".$this->var2str($this->regimeniva)
                     .",".$this->var2str($this->recargo)
                     .",".$this->var2str($this->numeroproveedor)
+                    .",".$this->var2str($this->personafisica)
                     .",".$this->var2str($this->diaspago)
-                    .",".$this->var2str($this->personafisica).");";
+                    .",".$this->var2str($this->codproveedor).");";
          }
          
          return $this->db->exec($sql);
