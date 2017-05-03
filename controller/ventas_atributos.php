@@ -34,7 +34,7 @@ class ventas_atributos extends fs_controller
    
    public function __construct()
    {
-      parent::__construct(__CLASS__, 'Atributod de artículos', 'ventas', FALSE, FALSE);
+      parent::__construct(__CLASS__, 'Atributos de artículos', 'ventas', FALSE, FALSE);
    }
    
    protected function private_core()
@@ -48,7 +48,7 @@ class ventas_atributos extends fs_controller
       $atr1 = new atributo();
       if( isset($_POST['nuevo']) )
       {
-         $atr1->codatributo = substr($_POST['nuevo'], 0, 8);
+         $atr1->codatributo = substr($_POST['nuevo'], 0, 20);
          $atr1->nombre = $_POST['nuevo'];
          if( $atr1->save() )
          {

@@ -36,7 +36,7 @@
       {
          document.f_custom_search.query.focus();
       }
-      
+
       $("#b_nuevo_cliente").click(function(event) {
          event.preventDefault();
          show_nuevo_cliente();
@@ -52,12 +52,12 @@
                <span class="glyphicon glyphicon-refresh"></span>
             </a>
             {if="$fsc->page->is_default()"}
-            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
+            <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="Marcada como página de inicio (pulsa de nuevo para desmarcar)">
+               <i class="fa fa-bookmark" aria-hidden="true"></i>
             </a>
             {else}
-            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
-               <span class="glyphicon glyphicon-home"></span>
+            <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="Marcar como página de inicio">
+               <i class="fa fa-bookmark-o" aria-hidden="true"></i>
             </a>
             {/if}
          </div>
@@ -75,7 +75,7 @@
       </div>
       <div class="col-sm-5 col-xs-6 text-right">
          <h2 style="margin-top: 0px;">
-            <i class="fa fa-users" aria-hidden="true"></i> Clientes
+            <i class="fa fa-users hidden-xs" aria-hidden="true"></i> Clientes
          </h2>
       </div>
    </div>
@@ -86,7 +86,7 @@
       <li role="presentation" class="active">
          <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
             <span class="glyphicon glyphicon-search"></span>
-            <span class="hidden-xs">&nbsp; Resultados</span>
+            <span class="hidden-xs">&nbsp;Resultados</span>
             <span class="badge">{$fsc->total_resultados}</span>
          </a>
       </li>
@@ -214,7 +214,7 @@
                </div>
             </div>
          </form>
-         
+
          <div class="table-responsive">
             <table class="table table-hover">
                <thead>
@@ -434,6 +434,14 @@
                   <label class="col-sm-2 control-label">Teléfono 2</label>
                   <div class="col-sm-10">
                      <input type="text" name="telefono2" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_telefono2_req']"} required=""{/if}/>
+                  </div>
+               </div>
+               {/if}
+               {if="$fsc->nuevocli_setup['nuevocli_email']"}
+               <div class="form-group{if="$fsc->nuevocli_setup['nuevocli_email_req']"} has-warning{/if}">
+                  <label class="col-sm-2 control-label">E-Mail</label>
+                  <div class="col-sm-10">
+                     <input type="text" name="email" class="form-control" autocomplete="off"{if="$fsc->nuevocli_setup['nuevocli_email_req']"} required=""{/if}/>
                   </div>
                </div>
                {/if}

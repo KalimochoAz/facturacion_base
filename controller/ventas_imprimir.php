@@ -2,6 +2,7 @@
 /*
  * This file is part of facturacion_base
  * Copyright (C) 2014-2017  Carlos Garcia Gomez  neorazorx@gmail.com
+ * Copyright (C) 2017  Francesc Pineda Segarra  shawe.ewahs@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -32,12 +33,12 @@ require_model('pais.php');
  */
 class ventas_imprimir extends fs_controller
 {
+   public $articulo_traza;
    public $cliente;
    public $documento;
    public $impresion;
    public $impuesto;
    
-   private $articulo_traza;
    private $numpaginas;
    
    public function __construct()
@@ -736,7 +737,7 @@ class ventas_imprimir extends fs_controller
       }
    }
    
-   private function generar_pdf_albaran($archivo = FALSE)
+   public function generar_pdf_albaran($archivo = FALSE)
    {
       if(!$archivo)
       {
@@ -795,7 +796,7 @@ class ventas_imprimir extends fs_controller
          $pdf_doc->show(FS_ALBARAN.'_'.$this->documento->codigo.'.pdf');
    }
    
-   private function generar_pdf_factura($tipo = 'simple', $archivo = FALSE)
+   public function generar_pdf_factura($tipo = 'simple', $archivo = FALSE)
    {
       if(!$archivo)
       {

@@ -18,6 +18,7 @@
  */
 
 require_model('agente.php');
+require_model('almacen.php');
 require_model('articulo.php');
 require_model('cliente.php');
 require_model('factura_cliente.php');
@@ -25,10 +26,12 @@ require_model('factura_cliente.php');
 class ventas_facturas extends fs_controller
 {
    public $agente;
+   public $almacenes;
    public $articulo;
    public $buscar_lineas;
    public $cliente;
    public $codagente;
+   public $codalmacen;
    public $codserie;
    public $desde;
    public $estado;
@@ -37,6 +40,7 @@ class ventas_facturas extends fs_controller
    public $huecos;
    public $lineas;
    public $mostrar;
+   public $multi_almacen;
    public $num_resultados;
    public $offset;
    public $order;
@@ -54,6 +58,7 @@ class ventas_facturas extends fs_controller
    protected function private_core()
    {
       $this->agente = new agente();
+      $this->almacenes = new almacen();
       $this->factura = new factura_cliente();
       $this->huecos = array();
       $this->serie = new serie();
@@ -69,6 +74,9 @@ class ventas_facturas extends fs_controller
          $this->mostrar = $_COOKIE['ventas_fac_mostrar'];
       }
       
+      $fsvar = new fs_var();
+      $this->multi_almacen = $fsvar->simple_get('multi_almacen');
+      
       $this->offset = 0;
       if( isset($_REQUEST['offset']) )
       {
@@ -78,25 +86,10 @@ class ventas_facturas extends fs_controller
       $this->order = 'fecha DESC';
       if( isset($_GET['order']) )
       {
-         if($_GET['order'] == 'fecha_desc')
+         $orden_l = $this->orden();
+         if( isset($orden_l[$_GET['order']]) )
          {
-            $this->order = 'fecha DESC';
-         }
-         else if($_GET['order'] == 'fecha_asc')
-         {
-            $this->order = 'fecha ASC';
-         }
-         else if($_GET['order'] == 'vencimiento_desc')
-         {
-            $this->order = 'vencimiento DESC';
-         }
-         else if($_GET['order'] == 'vencimiento_asc')
-         {
-            $this->order = 'vencimiento ASC';
-         }
-         else if($_GET['order'] == 'total_desc')
-         {
-            $this->order = 'total DESC';
+            $this->order = $orden_l[$_GET['order']]['orden'];
          }
          
          setcookie('ventas_fac_order', $this->order, time()+FS_COOKIES_EXPIRE);
@@ -130,6 +123,7 @@ class ventas_facturas extends fs_controller
          $this->huecos = $this->factura->huecos();
          $this->cliente = FALSE;
          $this->codagente = '';
+         $this->codalmacen = '';
          $this->codserie = '';
          $this->desde = '';
          $this->estado = '';
@@ -169,6 +163,11 @@ class ventas_facturas extends fs_controller
                $this->codagente = $_REQUEST['codagente'];
             }
             
+            if( isset($_REQUEST['codalmacen']) )
+            {
+               $this->codalmacen = $_REQUEST['codalmacen'];
+            }
+
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
@@ -239,6 +238,7 @@ class ventas_facturas extends fs_controller
                  ."&query=".$this->query
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
+                 ."&codalmacen=".$this->codalmacen
                  ."&codcliente=".$codcliente
                  ."&desde=".$this->desde
                  ."&estado=".$this->estado
@@ -415,12 +415,12 @@ class ventas_facturas extends fs_controller
    {
       $this->resultados = array();
       $this->num_resultados = 0;
-      $query = $this->agente->no_html( mb_strtolower($this->query, 'UTF8') );
       $sql = " FROM facturascli ";
       $where = 'WHERE ';
       
-      if($this->query != '')
+      if($this->query)
       {
+         $query = $this->agente->no_html( mb_strtolower($this->query, 'UTF8') );
          $sql .= $where;
          if( is_numeric($query) )
          {
@@ -436,9 +436,15 @@ class ventas_facturas extends fs_controller
          $where = ' AND ';
       }
       
-      if($this->codagente != '')
+      if($this->codagente)
       {
          $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->codalmacen)
+      {
+         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
          $where = ' AND ';
       }
       
@@ -448,19 +454,19 @@ class ventas_facturas extends fs_controller
          $where = ' AND ';
       }
       
-      if($this->codserie != '')
+      if($this->codserie)
       {
          $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
          $where = ' AND ';
       }
       
-      if($this->desde != '')
+      if($this->desde)
       {
          $sql .= $where."fecha >= ".$this->agente->var2str($this->desde);
          $where = ' AND ';
       }
       
-      if($this->hasta != '')
+      if($this->hasta)
       {
          $sql .= $where."fecha <= ".$this->agente->var2str($this->hasta);
          $where = ' AND ';
@@ -568,5 +574,46 @@ class ventas_facturas extends fs_controller
       }
       else
          $this->new_error_msg("Factura no encontrada.");
+   }
+   
+   public function orden()
+   {
+      return array(
+          'fecha_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Fecha',
+              'orden' => 'fecha DESC'
+          ),
+          'fecha_asc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>',
+              'texto' => 'Fecha',
+              'orden' => 'fecha ASC'
+          ),
+          'vencimiento_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Vencimiento',
+              'orden' => 'vencimiento DESC'
+          ),
+          'vencimiento_asc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>',
+              'texto' => 'Vencimiento',
+              'orden' => 'vencimiento ASC'
+          ),
+          'codigo_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Código',
+              'orden' => 'codigo DESC'
+          ),
+          'codigo_asc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>',
+              'texto' => 'Código',
+              'orden' => 'codigo ASC'
+          ),
+          'total_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Total',
+              'orden' => 'total DESC'
+          )
+      );
    }
 }

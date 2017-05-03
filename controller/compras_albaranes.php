@@ -18,6 +18,7 @@
  */
 
 require_model('agente.php');
+require_model('almacen.php');
 require_model('albaran_proveedor.php');
 require_model('articulo.php');
 require_model('factura_proveedor.php');
@@ -27,14 +28,17 @@ require_model('serie.php');
 class compras_albaranes extends fs_controller
 {
    public $agente;
+   public $almacenes;
    public $articulo;
    public $buscar_lineas;
    public $codagente;
+   public $codalmacen;
    public $codserie;
    public $desde;
    public $hasta;
    public $lineas;
    public $mostrar;
+   public $multi_almacen;
    public $num_resultados;
    public $offset;
    public $order;
@@ -53,6 +57,7 @@ class compras_albaranes extends fs_controller
    {
       $albaran = new albaran_proveedor();
       $this->agente = new agente();
+      $this->almacenes = new almacen();
       $this->serie = new serie();
       
       $this->mostrar = 'todo';
@@ -66,6 +71,9 @@ class compras_albaranes extends fs_controller
          $this->mostrar = $_COOKIE['compras_alb_mostrar'];
       }
       
+      $fsvar = new fs_var();
+      $this->multi_almacen = $fsvar->simple_get('multi_almacen');
+      
       $this->offset = 0;
       if( isset($_REQUEST['offset']) )
       {
@@ -75,25 +83,10 @@ class compras_albaranes extends fs_controller
       $this->order = 'fecha DESC';
       if( isset($_GET['order']) )
       {
-         if($_GET['order'] == 'fecha_desc')
+         $orden_l = $this->orden();
+         if( isset($orden_l[$_GET['order']]) )
          {
-            $this->order = 'fecha DESC';
-         }
-         else if($_GET['order'] == 'fecha_asc')
-         {
-            $this->order = 'fecha ASC';
-         }
-         else if($_GET['order'] == 'codigo_desc')
-         {
-            $this->order = 'codigo DESC';
-         }
-         else if($_GET['order'] == 'codigo_asc')
-         {
-            $this->order = 'codigo ASC';
-         }
-         else if($_GET['order'] == 'total_desc')
-         {
-            $this->order = 'total DESC';
+            $this->order = $orden_l[$_GET['order']]['orden'];
          }
          
          setcookie('compras_alb_order', $this->order, time()+FS_COOKIES_EXPIRE);
@@ -125,6 +118,7 @@ class compras_albaranes extends fs_controller
       {
          $this->share_extension();
          $this->codagente = '';
+         $this->codalmacen = '';
          $this->codserie = '';
          $this->desde = '';
          $this->hasta = '';
@@ -163,6 +157,10 @@ class compras_albaranes extends fs_controller
                $this->codagente = $_REQUEST['codagente'];
             }
             
+            if( isset($_REQUEST['codalmacen']) )
+            {
+               $this->codalmacen = $_REQUEST['codalmacen'];
+            }              
             if( isset($_REQUEST['codserie']) )
             {
                $this->codserie = $_REQUEST['codserie'];
@@ -232,6 +230,7 @@ class compras_albaranes extends fs_controller
                  ."&query=".$this->query
                  ."&codserie=".$this->codserie
                  ."&codagente=".$this->codagente
+                 ."&codalmacen=".$this->codalmacen               
                  ."&codproveedor=".$codproveedor
                  ."&desde=".$this->desde
                  ."&hasta=".$this->hasta;
@@ -472,12 +471,12 @@ class compras_albaranes extends fs_controller
    {
       $this->resultados = array();
       $this->num_resultados = 0;
-      $query = $this->agente->no_html( mb_strtolower($this->query, 'UTF8') );
       $sql = " FROM albaranesprov ";
       $where = 'WHERE ';
       
-      if($this->query != '')
+      if($this->query)
       {
+         $query = $this->agente->no_html( mb_strtolower($this->query, 'UTF8') );
          $sql .= $where;
          if( is_numeric($query) )
          {
@@ -491,9 +490,15 @@ class compras_albaranes extends fs_controller
          $where = ' AND ';
       }
       
-      if($this->codagente != '')
+      if($this->codagente)
       {
          $sql .= $where."codagente = ".$this->agente->var2str($this->codagente);
+         $where = ' AND ';
+      }
+      
+      if($this->codalmacen)
+      {
+         $sql .= $where."codalmacen = ".$this->agente->var2str($this->codalmacen);
          $where = ' AND ';
       }
       
@@ -503,19 +508,19 @@ class compras_albaranes extends fs_controller
          $where = ' AND ';
       }
       
-      if($this->codserie != '')
+      if($this->codserie)
       {
          $sql .= $where."codserie = ".$this->agente->var2str($this->codserie);
          $where = ' AND ';
       }
       
-      if($this->desde != '')
+      if($this->desde)
       {
          $sql .= $where."fecha >= ".$this->agente->var2str($this->desde);
          $where = ' AND ';
       }
       
-      if($this->hasta != '')
+      if($this->hasta)
       {
          $sql .= $where."fecha <= ".$this->agente->var2str($this->hasta);
          $where = ' AND ';
@@ -549,5 +554,36 @@ class compras_albaranes extends fs_controller
             }
          }
       }
+   }
+   
+   public function orden()
+   {
+      return array(
+          'fecha_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Fecha',
+              'orden' => 'fecha DESC'
+          ),
+          'fecha_asc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>',
+              'texto' => 'Fecha',
+              'orden' => 'fecha ASC'
+          ),
+          'codigo_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Código',
+              'orden' => 'codigo DESC'
+          ),
+          'codigo_asc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes" aria-hidden="true"></span>',
+              'texto' => 'Código',
+              'orden' => 'codigo ASC'
+          ),
+          'total_desc' => array(
+              'icono' => '<span class="glyphicon glyphicon-sort-by-attributes-alt" aria-hidden="true"></span>',
+              'texto' => 'Total',
+              'orden' => 'total DESC'
+          )
+      );
    }
 }

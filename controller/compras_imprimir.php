@@ -30,13 +30,13 @@ require_model('proveedor.php');
  */
 class compras_imprimir extends fs_controller
 {
+   public $articulo_traza;
    public $documento;
    public $impresion;
    public $impuesto;
    public $proveedor;
    
    private $articulo_proveedor;
-   private $articulo_traza;
    private $numpaginas;
    
    public function __construct()
@@ -542,7 +542,7 @@ class compras_imprimir extends fs_controller
       $pdf_doc->save_table($opciones);
    }
    
-   private function generar_pdf_albaran($archivo = FALSE)
+   public function generar_pdf_albaran($archivo = FALSE)
    {
       if(!$archivo)
       {
@@ -599,7 +599,7 @@ class compras_imprimir extends fs_controller
          $pdf_doc->show(FS_ALBARAN.'_compra_'.$this->documento->codigo.'.pdf');
    }
    
-   private function generar_pdf_factura($archivo = FALSE)
+   public function generar_pdf_factura($archivo = FALSE)
    {
       if(!$archivo)
       {
